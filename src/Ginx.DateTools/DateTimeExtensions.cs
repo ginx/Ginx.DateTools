@@ -26,12 +26,8 @@
         public static DateTime InThisWeek(this DateTime date, DayOfWeek dayOfWeek)
         {
             var firstDayOfWeek = Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-
-            if (date.DayOfWeek != firstDayOfWeek)
-            {
-                date = date.Previous(firstDayOfWeek);
-            }
-
+            date = date.AddDays(-(date.DayOfWeek - firstDayOfWeek));
+            
             if (dayOfWeek != firstDayOfWeek)
             {
                 date = date.Next(dayOfWeek);
@@ -43,6 +39,11 @@
         public static DateTimeBuilder With(this DateTime date, DatePart part)
         {
             return new DateTimeBuilder(date, part);
+        }
+
+        public static DateTimePeriod Current(this DateTime date)
+        {
+            return new DateTimePeriod(date);
         }
     }
 }

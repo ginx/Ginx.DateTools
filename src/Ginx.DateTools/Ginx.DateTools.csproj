@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatePart.cs" />
+    <Compile Include="DateTimePeriod.cs" />
     <Compile Include="DateTimeRange.cs" />
     <Compile Include="DateTimeBuilder.cs" />
     <Compile Include="DateTimeExtensions.cs" />

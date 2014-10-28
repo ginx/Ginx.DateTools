@@ -1,8 +1,9 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Ginx.DateTools.Test
+﻿namespace Ginx.DateTools.Test
 {
+    using System;
+    using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public class DateTimeRangeTests
     {
@@ -39,6 +40,7 @@ namespace Ginx.DateTools.Test
             Assert.AreEqual(end, range.End.Date);
         }
         
+        [TestMethod]
         public void DateRangeContainsTest()
         {
             var bestDayInHistory = new DateTime(1984, 9, 13);
@@ -65,12 +67,20 @@ namespace Ginx.DateTools.Test
             Assert.IsTrue(bestYearInHistory.Contains(bestYearInHistory));
         }
 
+        [TestMethod]
         public void DateRangeTimespanTest()
         {
             var bestDayInHistory = new DateTime(1984, 9, 13);
             var bestMonthInHistory = new DateTimeRange(1984, 9);
 
             Assert.AreEqual(bestMonthInHistory.End - bestMonthInHistory.Start, bestMonthInHistory.Duration);
+        }
+
+        [TestMethod]
+        public void DateRangeEnumerableTest()
+        {
+            var r = new DateTimeRange(1984, 9);
+            r.ToEnumerable(DatePart.Day).Where(d => d.DayOfWeek == DayOfWeek.Friday).ToList();
         }
     }
 }

@@ -55,27 +55,7 @@
                     return this.Clone(this.date.AddDays(increment));
 
                 case DatePart.Week:
-
-                    int counter = increment;
-                    var dayOfWeek = this.date.DayOfWeek;
-                    var current = this.date;
-                    if (increment > 0)
-                    {
-                        while (counter-- > 0)
-                        {
-                            current = current.Next(dayOfWeek);
-                        }
-                    }
-
-                    if (increment < 0)
-                    {
-                        while (counter++ < 0)
-                        {
-                            current = current.Previous(dayOfWeek);
-                        }
-                    }
-
-                    return this.Clone(current);
+                    return this.Clone(this.date.AddDays(increment * 7));
 
                 case DatePart.HalfMonth:
                     {
@@ -87,7 +67,7 @@
 
                             if (date.Day <= 15 && tmp.Month != date.Month)
                             {
-                                tmp = date.With(DatePart.Month).End();
+                                tmp = date.Current().Month.End();
                             }
 
                             if (date.Day > 15 && tmp.Month == date.Month)

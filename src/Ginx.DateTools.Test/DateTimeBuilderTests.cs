@@ -10,7 +10,7 @@ namespace Ginx.DateTools.Test
         public void TestMethod1()
         {
             var d = new DateTime(1984, 9, 13);
-            var builder = d.With(DatePart.Year);
+            var builder = d.Current().Year;
 
             Assert.AreEqual(new DateTime(1984, 1, 1), builder.Begin().Date);
             Assert.AreEqual(new DateTime(1984, 1, 1), builder.Begin().Date);
