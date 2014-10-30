@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -107,17 +108,21 @@
             }
             
             var current = this.start.With(part);
-            int count = 0;
             do
             {
                 yield return current.DateTime;
-                current = current.Add(++count);
+                current = current.Add(step);
             } while (current.DateTime <= this.end);
         }
 
         public override string ToString()
         {
-            return string.Format("{0} to {1}", this.start.ToShortDateString(), this.end.ToShortDateString());
+            return string.Format("{0} to {1}", this.start, this.end);
+        }
+
+        public string ToString(string format)
+        {
+            return this.ToString(format, CultureInfo.CurrentCulture);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
@@ -130,7 +135,7 @@
 
         public bool Equals(DateTimeRange other)
         {
-            return ReferenceEquals(this, other) || other.Start == this.Start && other.End == this.End;
+            return  other.start == this.start && other.end == this.end;
         }
     }
 }
