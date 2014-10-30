@@ -38,9 +38,7 @@ namespace Ginx.DateTools.Test
         public void InThisWeekTest()
         {
             var d = new DateTime(1984, 9, 13); // A happy thursday
-
-            //var week = d.With(DateTimePart.Week).Range;
-                        
+                       
             Assert.AreEqual(new DateTime(1984, 9, 9), d.InThisWeek(DayOfWeek.Sunday));
             Assert.AreEqual(new DateTime(1984, 9, 10), d.InThisWeek(DayOfWeek.Monday));
             Assert.AreEqual(new DateTime(1984, 9, 11), d.InThisWeek(DayOfWeek.Tuesday));

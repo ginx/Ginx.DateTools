@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -26,14 +27,6 @@
             }
         }
 
-        public DateTime Date
-        {
-            get
-            {
-                return this.date.Date;
-            }
-        }
-
         public DateTimeRange Range
         {
             get
@@ -49,53 +42,75 @@
 
         public DateTimeBuilder Add(int increment)
         {
+            if (increment == 0)
+            {
+                return this;
+            }
+
+            var ret = this;
+
             switch (this.part)
             {
                 case DatePart.Day:
-                    return this.Clone(this.date.AddDays(increment));
+                    ret = this.Clone(this.date.AddDays(increment));
+                    break;
 
                 case DatePart.Week:
-                    return this.Clone(this.date.AddDays(increment * 7));
+                    ret = this.Clone(this.date.AddDays(increment * 7));
+                    break;
 
                 case DatePart.HalfMonth:
                     {
-                        var date = this.date.AddMonths(increment / 2);
-
-                        if (increment % 2 != 0)
+                        if (increment % 2 == 0)
                         {
-                            var tmp = date.AddDays(15);
-
-                            if (date.Day <= 15 && tmp.Month != date.Month)
-                            {
-                                tmp = date.Current().Month.End();
-                            }
-
-                            if (date.Day > 15 && tmp.Month == date.Month)
-                            {
-                                tmp = date.With(DatePart.Month).Next().Begin();
-                            }
-
-                            date = tmp;
+                            ret = this.Clone(this.date.AddMonths(increment / 2));
+                            break;
                         }
 
-                        return this.Clone(date);
+                        var newDate = this.date.AddMonths(increment / 2);
+                        var sign = increment % 2;
+                        //var days = 15;
+
+                        if (sign == -1 && this.date.Day <= 15)
+                        {
+                            ret =  this.Clone(newDate.AddMonths(-1).AddDays(15));
+                            break;
+                        }
+
+                        if (sign == 1 && this.date.Day > 15)
+                        {
+                            ret = this.Clone(newDate.AddMonths(1).AddDays(-15));
+                            break;
+                        }
+
+                        if (newDate.Day == 31 && sign == -1)
+                        {
+                            ret = this.Clone(newDate.AddDays(-16));
+                            break;
+                        }
+
+                        ret = this.Clone(newDate.AddDays(15 * sign));
+                        break;
                     }
 
                 case DatePart.Month:
-                    return this.Clone(this.date.AddMonths(increment));
+                    ret = this.Clone(this.date.AddMonths(increment));
+                    break;
 
                 case DatePart.Quarter:
-                    return this.Clone(this.date.AddMonths(increment * 3));
+                    ret = this.Clone(this.date.AddMonths(increment * 3));
+                    break;
 
                 case DatePart.Semester:
-                    return this.Clone(this.date.AddMonths(increment * 6));
+                    ret = this.Clone(this.date.AddMonths(increment * 6));
+                    break;
 
                 case DatePart.Year:
-                    return this.Clone(this.date.AddYears(increment));
-
-                default:
-                    throw new ArgumentOutOfRangeException("part");
+                    ret = this.Clone(this.date.AddYears(increment));
+                    break;
             }
+
+            return ret;
         }
 
         public DateTimeBuilder Next()
@@ -110,43 +125,50 @@
 
         public DateTimeBuilder Begin()
         {
+            var ret = this;
             switch (this.part)
             {
                 case DatePart.Day:
-                    return this.Clone(this.date.Date);
+                    ret = this.Clone(this.date.Date);
+                    break;
 
                 case DatePart.Week:
                     var firstDayOfWeek = Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-                    return this.Clone(this.date.InThisWeek(firstDayOfWeek));
+                    ret = this.Clone(this.date.InThisWeek(firstDayOfWeek));
+                    break;
 
                 case DatePart.HalfMonth:
-                    return this.Clone(
+                    ret = this.Clone(
                         new DateTime(
                             this.date.Year,
                             this.date.Month,
                             this.date.Day <= 15 ? 1 : 16));
+                    break;
 
                 case DatePart.Month:
-                    return this.Clone(new DateTime(this.date.Year, this.date.Month, 1));
+                    ret = this.Clone(new DateTime(this.date.Year, this.date.Month, 1));
+                    break;
 
                 case DatePart.Quarter:
                     {
                         int month = (((int)Math.Ceiling(date.Month / 3.0)) - 1) * 3 + 1;
-                        return this.Clone(new DateTime(this.date.Year, month, 1));
+                        ret = this.Clone(new DateTime(this.date.Year, month, 1));
+                        break;
                     }
 
                 case DatePart.Semester:
                     {
                         int month = (((int)Math.Ceiling(date.Month / 6.0)) - 1) * 6 + 1;
-                        return this.Clone(new DateTime(this.date.Year, month, 1));
+                        ret = this.Clone(new DateTime(this.date.Year, month, 1));
+                        break;
                     }
 
                 case DatePart.Year:
-                    return this.Clone(new DateTime(this.date.Year, 1, 1));
-
-                default:
-                    throw new ArgumentOutOfRangeException("part");
+                    ret = this.Clone(new DateTime(this.date.Year, 1, 1));
+                    break;
             }
+
+            return ret;
         }
 
         public DateTimeBuilder End()
@@ -161,12 +183,17 @@
 
         public override string ToString()
         {
-            return this.date.ToString();
+            return string.Format("{0} of {1}", this.part, this.date);
+        }
+
+        public string ToString(string format)
+        {
+            return this.ToString(format, CultureInfo.CurrentCulture);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            return this.date.ToString(format, formatProvider);
+            return string.Format("{0} of {1}", this.part, this.date.ToString(format, formatProvider));
         }
     }
 }
